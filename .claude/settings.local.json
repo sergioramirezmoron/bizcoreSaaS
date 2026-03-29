@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx shadcn@latest init -d)",
+      "Bash(mvn dependency:resolve -q)",
+      "Bash(./mvnw dependency:resolve -q)",
+      "Bash(curl -s https://repo.maven.apache.org/maven2/com/github/vladimir-bukhtoyarov/bucket4j-core/maven-metadata.xml)",
+      "Bash(curl -s https://repo.maven.apache.org/maven2/com/bucket4j/bucket4j_jdk17-core/maven-metadata.xml)",
+      "Bash(npx vitest:*)",
+      "Bash(npm run:*)",
+      "Bash(./mvnw compile:*)"
+    ]
+  }
+}
