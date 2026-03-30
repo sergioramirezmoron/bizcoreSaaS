@@ -3,6 +3,8 @@ package com.bizcore.inventory.infrastructure.persistence;
 import com.bizcore.inventory.domain.model.StockItem;
 import com.bizcore.inventory.domain.port.out.StockItemRepositoryPort;
 import lombok.RequiredArgsConstructor;
+
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -43,5 +45,11 @@ public class StockItemRepositoryAdapter implements StockItemRepositoryPort {
     @Override
     public boolean existsByKey(UUID tenantId, UUID productId, UUID variantId, UUID branchId) {
         return jpaRepository.existsByKey(tenantId, productId, variantId, branchId);
+    }
+
+    @Override
+    public Optional<StockItem> findByKey(UUID tenantId, UUID productId, UUID variantId, UUID branchId) {
+        return jpaRepository.findByKey(tenantId, productId, variantId, branchId)
+                .map(StockItemJpaEntity::toDomain);
     }
 }

@@ -14,4 +14,5 @@ public interface StockItemRepositoryPort {
     Page<StockItem> findAll(UUID tenantId, UUID productId, UUID variantId, UUID branchId, Pageable pageable);
     List<StockItem> findLowStock(UUID tenantId, UUID branchId);
     boolean existsByKey(UUID tenantId, UUID productId, UUID variantId, UUID branchId);
+    java.util.Optional<StockItem> findByKey(UUID tenantId, UUID productId, UUID variantId, UUID branchId);
 }

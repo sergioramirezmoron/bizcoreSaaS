@@ -41,6 +41,20 @@ public interface StockItemJpaRepository extends JpaRepository<StockItemJpaEntity
     );
 
     @Query("""
+            SELECT s FROM StockItemJpaEntity s
+            WHERE s.tenantId = :tenantId
+              AND ((:productId IS NULL AND s.productId IS NULL) OR s.productId = :productId)
+              AND ((:variantId IS NULL AND s.variantId IS NULL) OR s.variantId = :variantId)
+              AND ((:branchId  IS NULL AND s.branchId  IS NULL) OR s.branchId  = :branchId)
+            """)
+    java.util.Optional<StockItemJpaEntity> findByKey(
+            @Param("tenantId")  UUID tenantId,
+            @Param("productId") UUID productId,
+            @Param("variantId") UUID variantId,
+            @Param("branchId")  UUID branchId
+    );
+
+    @Query("""
             SELECT COUNT(s) > 0 FROM StockItemJpaEntity s
             WHERE s.tenantId = :tenantId
               AND ((:productId IS NULL AND s.productId IS NULL) OR s.productId = :productId)
