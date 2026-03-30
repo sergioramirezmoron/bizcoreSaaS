@@ -7,6 +7,7 @@ import com.bizcore.billing.domain.port.out.BillingStripeCustomerPort;
 import com.bizcore.billing.infrastructure.stripe.PlanLimits;
 import com.bizcore.company.domain.model.Company;
 import com.bizcore.company.domain.model.SubscriptionPlan;
+import com.bizcore.notifications.application.NotificationEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
 
     private final BillingCompanyPort billingCompanyPort;
     private final BillingStripeCustomerPort stripeCustomerPort;
+    private final NotificationEventPublisher notificationPublisher;
 
     @Override
     @Transactional
@@ -56,6 +58,9 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
 
         log.info("Tenant {} activado con plan {} (sub: {})",
                 event.tenantId(), plan, event.stripeSubscriptionId());
+
+        // Notificar al propietario por email
+        notificationPublisher.subscriptionActivated(event.tenantId(), activated.name(), plan);
     }
 
     /** Suscripción actualizada: actualiza plan y límites. */
@@ -96,13 +101,17 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
                 false, company.createdAt(), OffsetDateTime.now()
         );
         billingCompanyPort.save(suspended);
+        notificationPublisher.subscriptionCancelled(event.tenantId(), company.name());
         log.info("Tenant {} suspendido (suscripción cancelada)", event.tenantId());
     }
 
     private void handlePaymentFailed(StripeEventData event) {
         log.warn("Pago fallido para stripeCustomerId={}. Tenant: {}",
                 event.stripeCustomerId(), event.tenantId());
-        // TODO: bizcore-notifications enviará email/whatsapp de aviso
+        if (event.tenantId() == null) return;
+        billingCompanyPort.findById(event.tenantId()).ifPresent(company ->
+                notificationPublisher.paymentFailed(event.tenantId(), company.name(), company.plan())
+        );
     }
 
     // ─── helpers ────────────────────────────────────────────────────────────
@@ -131,4 +140,5 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
             return SubscriptionPlan.BASIC;
         }
     }
+
 }
