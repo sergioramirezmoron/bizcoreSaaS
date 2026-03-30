@@ -5,6 +5,7 @@ import com.bizcore.company.application.dto.RegisterCompanyResponse;
 import com.bizcore.company.domain.model.Company;
 import com.bizcore.company.domain.model.EmployeeCreation;
 import com.bizcore.company.domain.model.SubscriptionPlan;
+import com.bizcore.company.domain.model.SubscriptionStatus;
 import com.bizcore.company.domain.port.in.RegisterCompanyUseCase;
 import com.bizcore.company.domain.port.out.CompanyRepositoryPort;
 import com.bizcore.company.domain.port.out.EmployeeRepositoryPort;
@@ -45,14 +46,16 @@ public class RegisterCompanyUseCaseImpl implements RegisterCompanyUseCase {
                 null,   // address
                 timezone,
                 null,   // logoUrl
+                request.ownerEmail(),
                 SubscriptionPlan.TRIAL,
+                SubscriptionStatus.TRIAL,
                 OffsetDateTime.now().plusDays(TRIAL_DAYS),
                 null,   // stripeCustomerId
                 null,   // stripeSubscriptionId
-                3,      // maxEmployees (plan TRIAL)
+                2,      // maxEmployees (plan TRIAL)
                 1,      // maxBranches
-                100,    // maxProducts
-                3,      // maxProductImages
+                50,     // maxProducts
+                2,      // maxProductImages
                 true,
                 null,
                 null

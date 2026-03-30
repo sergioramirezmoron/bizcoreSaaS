@@ -1,6 +1,7 @@
 package com.bizcore.company.infrastructure.persistence;
 
 import com.bizcore.company.domain.model.SubscriptionPlan;
+import com.bizcore.company.domain.model.SubscriptionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,6 +29,9 @@ public class CompanyJpaEntity {
     @Column(name = "business_type_id")
     private UUID businessTypeId;
 
+    @Column(length = 150)
+    private String email;
+
     @Column(name = "tax_id", length = 50)
     private String taxId;
 
@@ -46,6 +50,10 @@ public class CompanyJpaEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "subscription_plan")
     private SubscriptionPlan plan;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "subscription_status", nullable = false, length = 20)
+    private SubscriptionStatus subscriptionStatus;
 
     @Column(name = "plan_expires_at")
     private OffsetDateTime planExpiresAt;

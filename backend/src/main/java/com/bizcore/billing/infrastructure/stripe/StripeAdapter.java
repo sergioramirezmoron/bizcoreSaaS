@@ -141,6 +141,22 @@ public class StripeAdapter implements StripePort {
                 null, null, null);
     }
 
+    @Override
+    public String createBillingPortalSession(String stripeCustomerId, String returnUrl) {
+        try {
+            com.stripe.param.billingportal.SessionCreateParams params =
+                    com.stripe.param.billingportal.SessionCreateParams.builder()
+                            .setCustomer(stripeCustomerId)
+                            .setReturnUrl(returnUrl)
+                            .build();
+            com.stripe.model.billingportal.Session session =
+                    com.stripe.model.billingportal.Session.create(params);
+            return session.getUrl();
+        } catch (StripeException e) {
+            throw new RuntimeException("Error creando Stripe billing portal session: " + e.getMessage(), e);
+        }
+    }
+
     private StripeEventData unknown(String type) {
         return new StripeEventData(type, null, null, null, null, null);
     }

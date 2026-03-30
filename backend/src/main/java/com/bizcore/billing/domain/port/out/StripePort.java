@@ -13,4 +13,7 @@ public interface StripePort {
 
     /** Verifica la firma del webhook y devuelve un StripeEventData tipado. */
     StripeEventData parseWebhookEvent(byte[] rawBody, String stripeSignature);
+
+    /** Crea una sesión del Stripe Customer Portal y devuelve la URL. */
+    String createBillingPortalSession(String stripeCustomerId, String returnUrl);
 }

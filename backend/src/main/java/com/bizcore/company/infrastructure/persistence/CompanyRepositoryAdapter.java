@@ -28,7 +28,8 @@ public class CompanyRepositoryAdapter implements CompanyRepositoryPort {
         return new Company(
                 e.getId(), e.getName(), e.getBusinessTypeId(), e.getTaxId(),
                 e.getPhone(), e.getAddress(), e.getTimezone(), e.getLogoUrl(),
-                e.getPlan(), e.getPlanExpiresAt(),
+                e.getEmail(),
+                e.getPlan(), e.getSubscriptionStatus(), e.getPlanExpiresAt(),
                 e.getStripeCustomerId(), e.getStripeSubscriptionId(),
                 e.getMaxEmployees(), e.getMaxBranches(), e.getMaxProducts(), e.getMaxProductImages(),
                 e.isActive(), e.getCreatedAt(), e.getUpdatedAt()
@@ -45,7 +46,9 @@ public class CompanyRepositoryAdapter implements CompanyRepositoryPort {
                 .address(c.address())
                 .timezone(c.timezone() != null ? c.timezone() : "Europe/Madrid")
                 .logoUrl(c.logoUrl())
+                .email(c.email())
                 .plan(c.plan())
+                .subscriptionStatus(c.subscriptionStatus())
                 .planExpiresAt(c.planExpiresAt())
                 .stripeCustomerId(c.stripeCustomerId())
                 .stripeSubscriptionId(c.stripeSubscriptionId())

@@ -13,9 +13,9 @@ public final class PlanLimits {
     public static int maxEmployees(SubscriptionPlan plan) {
         return switch (plan) {
             case TRIAL    -> 2;
-            case BASIC    -> 5;
-            case STANDARD -> 15;
-            case PREMIUM  -> 50;
+            case BASIC    -> 3;
+            case STANDARD -> 10;
+            case PREMIUM  -> 999_999;
         };
     }
 
@@ -23,26 +23,26 @@ public final class PlanLimits {
         return switch (plan) {
             case TRIAL    -> 1;
             case BASIC    -> 1;
-            case STANDARD -> 3;
-            case PREMIUM  -> 10;
+            case STANDARD -> 2;
+            case PREMIUM  -> 5;
         };
     }
 
     public static int maxProducts(SubscriptionPlan plan) {
         return switch (plan) {
             case TRIAL    -> 50;
-            case BASIC    -> 500;
-            case STANDARD -> 2000;
-            case PREMIUM  -> 9999;
+            case BASIC    -> 100;
+            case STANDARD -> 1_000;
+            case PREMIUM  -> 999_999;
         };
     }
 
     public static int maxProductImages(SubscriptionPlan plan) {
         return switch (plan) {
             case TRIAL    -> 2;
-            case BASIC    -> 5;
-            case STANDARD -> 10;
-            case PREMIUM  -> 20;
+            case BASIC    -> 1;
+            case STANDARD -> 3;
+            case PREMIUM  -> 5;
         };
     }
 

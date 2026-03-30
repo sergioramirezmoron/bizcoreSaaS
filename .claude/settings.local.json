@@ -14,7 +14,13 @@
       "Bash(./mvnw dependency:resolve)",
       "Bash(/dev/null find:*)",
       "Bash(find /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/target -name *.sql)",
-      "Bash(sort echo:*)"
+      "Bash(sort echo:*)",
+      "Bash(for module:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java/com/bizcore/**)",
+      "Bash(done)",
+      "Bash(find /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java -type f -name *JsonbConverter* -o -name *Jsonb*)",
+      "Bash(mvn compile:*)"
     ]
   }
 }

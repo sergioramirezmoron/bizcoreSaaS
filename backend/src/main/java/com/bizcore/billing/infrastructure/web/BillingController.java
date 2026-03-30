@@ -5,6 +5,9 @@ import com.bizcore.billing.application.dto.CheckoutResponse;
 import com.bizcore.billing.application.dto.PromoCodeResponse;
 import com.bizcore.billing.domain.port.in.CreateCheckoutSessionUseCase;
 import com.bizcore.billing.domain.port.in.ValidatePromoCodeUseCase;
+import com.bizcore.billing.domain.port.out.BillingCompanyPort;
+import com.bizcore.billing.domain.port.out.StripePort;
+import com.bizcore.shared.exception.ResourceNotFoundException;
 import com.bizcore.shared.response.ApiResponse;
 import com.bizcore.shared.tenant.TenantContext;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +26,12 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "bearerAuth")
 public class BillingController {
 
+    private static final String PORTAL_RETURN_URL = "https://app.bizcore.app/configuracion/facturacion";
+
     private final CreateCheckoutSessionUseCase createCheckoutSessionUseCase;
     private final ValidatePromoCodeUseCase validatePromoCodeUseCase;
+    private final BillingCompanyPort billingCompanyPort;
+    private final StripePort stripePort;
 
     @PostMapping("/checkout")
     @Operation(summary = "Crear sesión de pago en Stripe para contratar un plan")
@@ -34,6 +41,22 @@ public class BillingController {
     ) {
         return ResponseEntity.ok(ApiResponse.ok(
                 createCheckoutSessionUseCase.createSession(TenantContext.getTenantId(), request)));
+    }
+
+    @PostMapping("/portal")
+    @Operation(summary = "Crear sesión del Stripe Customer Portal para gestionar la suscripción")
+    @PreAuthorize("hasAnyRole('OWNER')")
+    public ResponseEntity<ApiResponse<CheckoutResponse>> portal() {
+        var company = billingCompanyPort.findById(TenantContext.getTenantId())
+                .orElseThrow(() -> new ResourceNotFoundException("Company", TenantContext.getTenantId()));
+
+        if (company.stripeCustomerId() == null) {
+            throw new IllegalStateException("Esta empresa no tiene un cliente de Stripe asociado");
+        }
+
+        String url = stripePort.createBillingPortalSession(
+                company.stripeCustomerId(), PORTAL_RETURN_URL);
+        return ResponseEntity.ok(ApiResponse.ok(new CheckoutResponse(url)));
     }
 
     @GetMapping("/promo-codes/{code}")

@@ -29,7 +29,8 @@ public class GetCompanyUseCaseImpl implements GetCompanyUseCase {
         return new CompanyResponse(
                 c.id(), c.name(), c.businessTypeId(), c.taxId(),
                 c.phone(), c.address(), c.timezone(), c.logoUrl(),
-                c.plan(), c.planExpiresAt(),
+                c.email(),
+                c.plan(), c.subscriptionStatus(), c.planExpiresAt(),
                 c.maxEmployees(), c.maxBranches(), c.maxProducts(), c.maxProductImages(),
                 c.active(), c.createdAt()
         );

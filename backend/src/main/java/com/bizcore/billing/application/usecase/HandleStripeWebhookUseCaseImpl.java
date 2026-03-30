@@ -5,8 +5,10 @@ import com.bizcore.billing.domain.port.in.HandleStripeWebhookUseCase;
 import com.bizcore.billing.domain.port.out.BillingCompanyPort;
 import com.bizcore.billing.domain.port.out.BillingStripeCustomerPort;
 import com.bizcore.billing.infrastructure.stripe.PlanLimits;
+import com.bizcore.billing.infrastructure.stripe.StripeProperties;
 import com.bizcore.company.domain.model.Company;
 import com.bizcore.company.domain.model.SubscriptionPlan;
+import com.bizcore.company.domain.model.SubscriptionStatus;
 import com.bizcore.notifications.application.NotificationEventPublisher;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +25,7 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
     private final BillingCompanyPort billingCompanyPort;
     private final BillingStripeCustomerPort stripeCustomerPort;
     private final NotificationEventPublisher notificationPublisher;
+    private final StripeProperties stripeProperties;
 
     @Override
     @Transactional
@@ -50,7 +53,7 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
         }
 
         SubscriptionPlan plan = parsePlan(event.planName());
-        Company activated = withSubscription(company, plan,
+        Company activated = withSubscription(company, plan, SubscriptionStatus.ACTIVE,
                 event.stripeCustomerId(), event.stripeSubscriptionId());
 
         billingCompanyPort.save(activated);
@@ -59,7 +62,6 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
         log.info("Tenant {} activado con plan {} (sub: {})",
                 event.tenantId(), plan, event.stripeSubscriptionId());
 
-        // Notificar al propietario por email
         notificationPublisher.subscriptionActivated(event.tenantId(), activated.name(), plan);
     }
 
@@ -73,16 +75,21 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
         if (company == null) return;
 
         SubscriptionPlan plan = event.stripePriceId() != null
-                ? PlanLimits.planForPriceId(event.stripePriceId(), company.plan())
+                ? stripeProperties.planForPriceId(event.stripePriceId())
                 : company.plan();
 
-        billingCompanyPort.save(withSubscription(company, plan,
+        // Si el plan era TRIAL o desconocido, cae a BASIC
+        if (plan == SubscriptionPlan.TRIAL) {
+            plan = company.plan() != SubscriptionPlan.TRIAL ? company.plan() : SubscriptionPlan.BASIC;
+        }
+
+        billingCompanyPort.save(withSubscription(company, plan, SubscriptionStatus.ACTIVE,
                 event.stripeCustomerId(), event.stripeSubscriptionId()));
 
         log.info("Tenant {} plan actualizado a {}", event.tenantId(), plan);
     }
 
-    /** Suscripción cancelada: desactiva el tenant. */
+    /** Suscripción cancelada: degrada a TRIAL y marca como cancelada. */
     private void handleSubscriptionDeleted(StripeEventData event) {
         if (event.tenantId() == null) return;
         Company company = billingCompanyPort.findById(event.tenantId()).orElse(null);
@@ -91,8 +98,8 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
         Company suspended = new Company(
                 company.id(), company.name(), company.businessTypeId(),
                 company.taxId(), company.phone(), company.address(),
-                company.timezone(), company.logoUrl(),
-                SubscriptionPlan.TRIAL, null,
+                company.timezone(), company.logoUrl(), company.email(),
+                SubscriptionPlan.TRIAL, SubscriptionStatus.CANCELLED, null,
                 company.stripeCustomerId(), null,
                 PlanLimits.maxEmployees(SubscriptionPlan.TRIAL),
                 PlanLimits.maxBranches(SubscriptionPlan.TRIAL),
@@ -105,24 +112,37 @@ public class HandleStripeWebhookUseCaseImpl implements HandleStripeWebhookUseCas
         log.info("Tenant {} suspendido (suscripción cancelada)", event.tenantId());
     }
 
+    /** Pago fallido: marca como PAST_DUE y notifica. */
     private void handlePaymentFailed(StripeEventData event) {
         log.warn("Pago fallido para stripeCustomerId={}. Tenant: {}",
                 event.stripeCustomerId(), event.tenantId());
         if (event.tenantId() == null) return;
-        billingCompanyPort.findById(event.tenantId()).ifPresent(company ->
-                notificationPublisher.paymentFailed(event.tenantId(), company.name(), company.plan())
-        );
+        billingCompanyPort.findById(event.tenantId()).ifPresent(company -> {
+            Company pastDue = new Company(
+                    company.id(), company.name(), company.businessTypeId(),
+                    company.taxId(), company.phone(), company.address(),
+                    company.timezone(), company.logoUrl(), company.email(),
+                    company.plan(), SubscriptionStatus.PAST_DUE, company.planExpiresAt(),
+                    company.stripeCustomerId(), company.stripeSubscriptionId(),
+                    company.maxEmployees(), company.maxBranches(),
+                    company.maxProducts(), company.maxProductImages(),
+                    company.active(), company.createdAt(), OffsetDateTime.now()
+            );
+            billingCompanyPort.save(pastDue);
+            notificationPublisher.paymentFailed(event.tenantId(), company.name(), company.plan());
+        });
     }
 
     // ─── helpers ────────────────────────────────────────────────────────────
 
     private Company withSubscription(Company c, SubscriptionPlan plan,
+                                      SubscriptionStatus status,
                                       String customerId, String subscriptionId) {
         return new Company(
                 c.id(), c.name(), c.businessTypeId(),
                 c.taxId(), c.phone(), c.address(),
-                c.timezone(), c.logoUrl(),
-                plan, null,
+                c.timezone(), c.logoUrl(), c.email(),
+                plan, status, null,
                 customerId, subscriptionId,
                 PlanLimits.maxEmployees(plan),
                 PlanLimits.maxBranches(plan),
