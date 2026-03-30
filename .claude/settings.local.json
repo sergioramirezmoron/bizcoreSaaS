@@ -10,7 +10,8 @@
       "Bash(npm run:*)",
       "Bash(./mvnw compile:*)",
       "Bash(find C:UsersUsuarioDocumentsPERSONALWEBSProyectosSaaS -type f -name *.md -o -name *.txt -o -name *.xml -o -name *.json -o -name *.sql)",
-      "Bash(find C:/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS -not -path */node_modules* -not -path */.git*)"
+      "Bash(find C:/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS -not -path */node_modules* -not -path */.git*)",
+      "Bash(./mvnw dependency:resolve)"
     ]
   }
 }
