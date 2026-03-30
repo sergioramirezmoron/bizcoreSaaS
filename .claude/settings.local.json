@@ -8,7 +8,9 @@
       "Bash(curl -s https://repo.maven.apache.org/maven2/com/bucket4j/bucket4j_jdk17-core/maven-metadata.xml)",
       "Bash(npx vitest:*)",
       "Bash(npm run:*)",
-      "Bash(./mvnw compile:*)"
+      "Bash(./mvnw compile:*)",
+      "Bash(find C:UsersUsuarioDocumentsPERSONALWEBSProyectosSaaS -type f -name *.md -o -name *.txt -o -name *.xml -o -name *.json -o -name *.sql)",
+      "Bash(find C:/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS -not -path */node_modules* -not -path */.git*)"
     ]
   }
 }
