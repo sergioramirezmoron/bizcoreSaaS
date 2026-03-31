@@ -37,6 +37,29 @@ public class PromoCodeJpaEntity {
     @Column(name = "expires_at")
     private LocalDate expiresAt;
 
+    // ── V9 additions ──────────────────────────────────────────────────────────
+
+    @Column(name = "value", columnDefinition = "jsonb")
+    private String value;
+
+    @Column(columnDefinition = "text")
+    private String description;
+
+    @Column(length = 30)
+    private String type;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive = true;
+
+    @Column(name = "valid_from")
+    private Instant validFrom;
+
+    @Column(name = "valid_until")
+    private Instant validUntil;
+
+    @Column(name = "created_by")
+    private UUID createdBy;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -52,12 +75,38 @@ public class PromoCodeJpaEntity {
         e.currentUses = p.currentUses();
         e.status = p.status();
         e.expiresAt = p.expiresAt();
+        e.description = p.description();
+        e.type = p.type();
+        e.isActive = p.active();
+        e.validFrom = p.validFrom();
+        e.validUntil = p.validUntil();
+        e.createdBy = p.createdBy();
         e.createdAt = p.createdAt();
+        e.value = "{}"; // default empty JSON; admin create flow sets it explicitly
         return e;
     }
 
     public PromoCode toDomain() {
-        return new PromoCode(id, code, stripeCouponId, discountPercent,
-                maxUses, currentUses, status, expiresAt, createdAt);
+        return new PromoCode(id, code, stripeCouponId, discountPercent, maxUses, currentUses,
+                status, expiresAt, description, type, isActive, validFrom, validUntil, createdBy, createdAt);
     }
+
+    // Getters for admin queries
+    public UUID getId()           { return id; }
+    public String getCode()       { return code; }
+    public String getDescription(){ return description; }
+    public String getType()       { return type; }
+    public boolean isActive()     { return isActive; }
+    public Instant getValidFrom() { return validFrom; }
+    public Instant getValidUntil(){ return validUntil; }
+    public UUID getCreatedBy()    { return createdBy; }
+    public Instant getCreatedAt() { return createdAt; }
+    public int getMaxUses()       { return maxUses; }
+    public int getCurrentUses()   { return currentUses; }
+    public String getStripeCouponId() { return stripeCouponId; }
+    public int getDiscountPercent()   { return discountPercent; }
+    public PromoCodeStatus getStatus(){ return status; }
+    public LocalDate getExpiresAt()   { return expiresAt; }
+    public String getValue()           { return value; }
+    public void setValue(String v)     { this.value = v; }
 }

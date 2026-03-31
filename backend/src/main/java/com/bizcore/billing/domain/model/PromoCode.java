@@ -13,5 +13,12 @@ public record PromoCode(
         int currentUses,
         PromoCodeStatus status,
         LocalDate expiresAt,
+        // V9 additions
+        String description,
+        String type,
+        boolean active,
+        Instant validFrom,
+        Instant validUntil,
+        UUID createdBy,
         Instant createdAt
 ) {}

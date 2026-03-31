@@ -20,7 +20,17 @@
       "Read(//c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java/com/bizcore/**)",
       "Bash(done)",
       "Bash(find /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java -type f -name *JsonbConverter* -o -name *Jsonb*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Read(//tmp/**)",
+      "Bash(xargs grep:*)",
+      "Bash(xargs ls:*)",
+      "Bash(xargs cat:*)",
+      "Bash(find /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend -name *.java -path */exception/*)",
+      "Bash(xargs -I{} ls -1 {}/java/com/bizcore/)",
+      "Bash(grep -E \"\\\\.java$\")",
+      "Bash(find /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java/com/bizcore -name *.java -type f -exec grep -l '{ *}' {})",
+      "Bash(2)",
+      "Bash(grep -r \"PlanLimits\\\\|maxProducts\\\\|maxEmployees\\\\|SubscriptionPlan\\\\|plan\" /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java/com/bizcore/catalog/application --include=\"*.java\" -l echo \"---\" grep -r \"ForbiddenException\\\\|plan\" /c/Users/Usuario/Documents/PERSONAL/WEBS/Proyectos/SaaS/backend/src/main/java/com/bizcore/company/application --include=\"*.java\" -l)"
     ]
   }
 }

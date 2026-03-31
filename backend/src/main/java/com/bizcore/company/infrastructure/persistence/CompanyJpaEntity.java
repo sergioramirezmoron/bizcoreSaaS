@@ -79,6 +79,12 @@ public class CompanyJpaEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active;
 
+    @Column(name = "admin_notes", columnDefinition = "TEXT")
+    private String adminNotes;
+
+    @Column(name = "plan_override_by_admin", nullable = false)
+    private boolean planOverrideByAdmin;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
